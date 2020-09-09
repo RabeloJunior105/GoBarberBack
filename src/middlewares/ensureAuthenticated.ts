@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { verify, decode } from 'jsonwebtoken';
+import { verify } from 'jsonwebtoken';
 import authConfig from '../config/auth';
+import AppError from '../errors/AppError';
 
 interface tokenPayload {
   iat: number,
@@ -11,7 +12,7 @@ export default function ensureAuthenticated(req: Request, res: Response, next: N
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    throw new Error('Token inválido');
+    throw new AppError('Token inválido', 401);
   }
   const [, token] = authHeader.split(' ');
   try {
@@ -23,6 +24,6 @@ export default function ensureAuthenticated(req: Request, res: Response, next: N
     };
     return next();
   } catch {
-    throw new Error('token inválido');
+    throw new AppError('token inválido', 401);
   }
 }
