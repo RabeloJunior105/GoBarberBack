@@ -1,4 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
+import '@shared/container'
+import '@shared/infra/typeorm';
 
 import 'express-async-errors';
 import cors from 'cors';
@@ -7,8 +9,6 @@ import routes from '@shared/infra/http/routes';
 
 import UploadConfig from '@config/upload';
 import AppError from '@shared/errors/AppError';
-
-import '@shared/infra/Typeorm';
 
 const app = express();
 

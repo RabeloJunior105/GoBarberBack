@@ -1,25 +1,29 @@
-import { getRepository } from 'typeorm';
+
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
+import { inject, injectable } from 'tsyringe'
 import authConfig from '@config/auth';
 import AppError from '@shared/errors/AppError';
-import User from '@modules/users/infra/Typeorm/entities/Users';
+import User from '@modules/users/infra/typeorm/entities/Users';
+import IUserRepository from '../repositories/iUsersRepository';
 
-interface Request {
+interface IRequest {
   email: string;
   password: string;
 }
-interface Response {
+interface IResponse {
   user: User;
   token: string;
 }
+@injectable()
 class AuthenticateService {
-  public async execute({ email, password }: Request): Promise<Response> {
-    const UsersRepository = getRepository(User);
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: IUserRepository
+    ) { }
 
-    const user = await UsersRepository.findOne({
-      where: { email },
-    });
+  public async execute({ email, password }: IRequest): Promise<IResponse> {
+    const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
       throw new AppError('Autenticação inválida', 401);

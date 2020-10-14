@@ -22,16 +22,23 @@
     "@typescript-eslint",
     "prettier"
   ],
-
   "rules": {
     "class-methods-use-this": "off",
     "no-underscore-dangle": "off",
     "no-console": "off",
     "prettier/prettier": "error",
+    "no-useless-constructor":"off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
         "argsIgnorePattern": "_"
+      }
+    ],
+    "@":"",
+    "@typescript-eslint/interface-name-prefix": [
+      "error",
+      {
+        "prefixWithI": "always"
       }
     ],
     "import/extensions": [

@@ -1,33 +1,28 @@
 import { startOfHour } from 'date-fns';
-
-import { getCustomRepository } from 'typeorm';
+import { injectable, inject } from 'tsyringe'
 import AppError from '@shared/errors/AppError';
-import Appointment from '../infra/Typeorm/entities/Appointment';
-import AppointmentRepository from '../repositories/appointments.repositories';
 
-/*
-Receber as informações
-tratativas de erros e exceções
-acesso ao repositorio de agendamento
-*/
+import Appointment from '../infra/typeorm/entities/Appointment';
+import IAppointmentsRepository from '../repositories/iAppointmentsRepository';
 
-interface RequestDTO {
+interface IRequestDTO {
   fk_provider: string;
   date: Date;
 }
-/*
- * dependency inversion
- */
+@injectable()
 class CreateAppointmentService {
+
+  constructor(
+    @inject('AppointmentsRepository')
+    private appointmentsRepository: IAppointmentsRepository) { }
+
   public async execute({
     date,
     fk_provider,
-  }: RequestDTO): Promise<Appointment> {
-    const appointmentRepository = getCustomRepository(AppointmentRepository);
-
+  }: IRequestDTO): Promise<Appointment> {
     const appointmentDate = startOfHour(date);
 
-    const findAppointmentSameDate = await appointmentRepository.findByDate(
+    const findAppointmentSameDate = await this.appointmentsRepository.findByDate(
       appointmentDate,
     );
 
@@ -35,12 +30,10 @@ class CreateAppointmentService {
       throw new AppError('Esse horario já está ocupado');
     }
 
-    const appointment = appointmentRepository.create({
+    const appointment = await this.appointmentsRepository.create({
       fk_provider,
       date: appointmentDate,
     });
-
-    await appointmentRepository.save(appointment);
 
     return appointment;
   }
